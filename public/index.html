@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spotify Lifetime Stats</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main id="app">
+      <section class="topbar">
+        <div>
+          <h1>Spotify Lifetime Stats</h1>
+          <p>Private local analysis for your Spotify Extended Streaming History.</p>
+        </div>
+        <div class="status-pill" id="connectionStatus">Checking app...</div>
+      </section>
+
+      <section class="toolbar">
+        <form id="importForm" class="import-form">
+          <label class="file-picker">
+            <input id="fileInput" type="file" name="files" accept=".json,.zip,application/json,application/zip" multiple />
+            <span>Choose Spotify export</span>
+          </label>
+          <button type="submit">Import</button>
+        </form>
+        <div class="exports">
+          <a href="/api/export/tracks">Tracks CSV</a>
+          <a href="/api/export/artists">Artists CSV</a>
+          <a href="/api/export/albums">Albums CSV</a>
+          <a href="/api/export/podcasts">Podcasts CSV</a>
+          <a href="/api/export/plays">All Plays CSV</a>
+        </div>
+      </section>
+
+      <section class="spotify-panel">
+        <div>
+          <h2>Spotify API Enrichment</h2>
+          <p>Paste your Spotify Developer Client ID, connect once, then enrich genres, artwork, durations, and links.</p>
+        </div>
+        <div class="spotify-controls">
+          <input id="clientIdInput" type="text" placeholder="Spotify Client ID" autocomplete="off" />
+          <button id="saveClientId" type="button">Save</button>
+          <button id="connectSpotify" type="button">Connect</button>
+          <button id="startEnrichment" type="button">Enrich</button>
+          <button id="pauseEnrichment" type="button">Pause</button>
+        </div>
+        <div class="enrichment-status" id="enrichmentStatus">No enrichment run has started.</div>
+      </section>
+
+      <section class="cards" id="overviewCards"></section>
+
+      <section class="grid-two">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Listening Over Time</h2>
+            <span>Total minutes by month</span>
+          </div>
+          <div class="chart" id="timelineChart"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Hour Of Day</h2>
+            <span>When you listen most</span>
+          </div>
+          <div class="chart bars-compact" id="hourChart"></div>
+        </div>
+      </section>
+
+      <section class="grid-two">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Top Genres</h2>
+            <span>Inferred from artist metadata</span>
+          </div>
+          <div class="list" id="genreList"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Streaks</h2>
+            <span>Daily listening patterns</span>
+          </div>
+          <div class="list" id="streakList"></div>
+        </div>
+      </section>
+
+      <section class="tabs">
+        <button class="tab active" data-tab="tracks">Songs</button>
+        <button class="tab" data-tab="artists">Artists</button>
+        <button class="tab" data-tab="albums">Albums</button>
+        <button class="tab" data-tab="shows">Podcast Shows</button>
+        <button class="tab" data-tab="episodes">Podcast Episodes</button>
+        <button class="tab" data-tab="imports">Imports</button>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-head">
+          <h2 id="tableTitle">Songs</h2>
+          <span id="tableSubtitle">Music rankings exclude podcasts</span>
+        </div>
+        <div class="table-wrap">
+          <table id="dataTable"></table>
+        </div>
+      </section>
+
+      <section class="message-log" id="messageLog"></section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
