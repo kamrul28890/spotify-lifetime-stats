@@ -1,0 +1,54 @@
+[
+  {
+    "ts": "2024-01-01T12:00:00Z",
+    "platform": "ios",
+    "ms_played": 180000,
+    "conn_country": "US",
+    "master_metadata_track_name": "Midnight City",
+    "master_metadata_album_artist_name": "M83",
+    "master_metadata_album_album_name": "Hurry Up, We're Dreaming",
+    "spotify_track_uri": "spotify:track:1eyzqe2QqGZUmfcPZtrIyt",
+    "reason_start": "trackdone",
+    "reason_end": "trackdone",
+    "shuffle": false,
+    "skipped": false,
+    "offline": false,
+    "incognito_mode": false
+  },
+  {
+    "ts": "2024-01-01T12:03:00Z",
+    "platform": "ios",
+    "ms_played": 12000,
+    "conn_country": "US",
+    "master_metadata_track_name": "Short Skip",
+    "master_metadata_album_artist_name": "Example Artist",
+    "master_metadata_album_album_name": "Example Album",
+    "reason_start": "fwdbtn",
+    "reason_end": "fwdbtn",
+    "shuffle": true,
+    "skipped": true,
+    "offline": false,
+    "incognito_mode": false
+  },
+  {
+    "ts": "2024-01-02T08:30:00Z",
+    "platform": "desktop",
+    "ms_played": 2400000,
+    "conn_country": "US",
+    "episode_name": "A Good Conversation",
+    "episode_show_name": "The Example Show",
+    "spotify_episode_uri": "spotify:episode:example",
+    "reason_start": "clickrow",
+    "reason_end": "endplay",
+    "shuffle": false,
+    "skipped": false,
+    "offline": false,
+    "incognito_mode": false
+  },
+  {
+    "endTime": "2024-01-03 15:20",
+    "artistName": "M83",
+    "trackName": "Midnight City",
+    "msPlayed": 175000
+  }
+]
