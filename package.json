@@ -3,11 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "electron/main.mjs",
   "scripts": {
     "start": "./scripts/start.sh",
-    "test": "./scripts/test.sh"
+    "test": "./scripts/test.sh",
+    "app:dev": "electron ."
   },
   "dependencies": {
     "adm-zip": "^0.5.17"
+  },
+  "devDependencies": {
+    "electron": "^42.4.1"
   }
 }
