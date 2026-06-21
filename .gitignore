@@ -21,6 +21,7 @@ pnpm-debug.log*
 # Build and cache output
 dist/
 build/
+release/
 coverage/
 .cache/
 .parcel-cache/

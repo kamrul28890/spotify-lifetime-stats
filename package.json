@@ -7,12 +7,36 @@
   "scripts": {
     "start": "./scripts/start.sh",
     "test": "./scripts/test.sh",
-    "app:dev": "electron ."
+    "app:dev": "electron .",
+    "app:build": "electron-builder --win nsis"
   },
   "dependencies": {
     "adm-zip": "^0.5.17"
   },
   "devDependencies": {
-    "electron": "^42.4.1"
+    "electron": "^42.4.1",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.spotifylifetimestats.app",
+    "productName": "Spotify Lifetime Stats",
+    "asar": false,
+    "files": [
+      "electron/**/*",
+      "server/**/*",
+      "public/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "electron/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
