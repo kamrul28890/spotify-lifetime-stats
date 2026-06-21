@@ -11,10 +11,6 @@ const rootDir = resolve(__dirname, '..');
 const publicDir = join(rootDir, 'public');
 const dataDir = join(rootDir, 'work', 'data');
 const uploadDir = join(rootDir, 'work', 'uploads');
-const dbPath = process.env.SPOTIFY_STATS_DB || join(dataDir, 'spotify-stats.sqlite');
-const host = process.env.HOST || '127.0.0.1';
-const port = Number(process.env.PORT || 5173);
-const redirectUri = `http://${host}:${port}/callback`;
 const scopes = [
   'user-top-read',
   'user-read-recently-played',
@@ -23,12 +19,11 @@ const scopes = [
   'playlist-read-collaborative'
 ];
 
-mkdirSync(dataDir, { recursive: true });
-mkdirSync(uploadDir, { recursive: true });
-
-const db = new DatabaseSync(dbPath);
-db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
-initDb();
+let host;
+let port;
+let dbPath;
+let redirectUri;
+let db;
 
 let enrichmentState = {
   status: 'not_started',
@@ -54,10 +49,36 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(port, host, () => {
+export async function startServer(options = {}) {
+  host = options.host || process.env.HOST || '127.0.0.1';
+  port = options.port !== undefined ? options.port : Number(process.env.PORT || 5173);
+  dbPath = options.dbPath || process.env.SPOTIFY_STATS_DB || join(dataDir, 'spotify-stats.sqlite');
+  redirectUri = `http://${host}:${port}/callback`;
+
+  mkdirSync(dataDir, { recursive: true });
+  mkdirSync(uploadDir, { recursive: true });
+  mkdirSync(dirname(dbPath), { recursive: true });
+
+  db = new DatabaseSync(dbPath);
+  db.exec('PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;');
+  initDb();
+  server.once('close', () => {
+    db?.close();
+  });
+
+  await new Promise((resolveListen, reject) => {
+    server.once('error', reject);
+    server.listen(port, host, resolveListen);
+  });
+
+  port = server.address().port;
+  redirectUri = `http://${host}:${port}/callback`;
+
   console.log(`Spotify Lifetime Stats running at http://${host}:${port}`);
   console.log(`Database: ${dbPath}`);
-});
+
+  return { server, port, dbPath };
+}
 
 async function routeApi(req, res, url) {
   if (req.method === 'GET' && url.pathname === '/api/health') {
@@ -963,4 +984,12 @@ function maxDate(a, b) {
 function round(value, places) {
   const factor = 10 ** places;
   return Math.round(value * factor) / factor;
+}
+
+const isMainModule = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+if (isMainModule) {
+  startServer().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
 }
