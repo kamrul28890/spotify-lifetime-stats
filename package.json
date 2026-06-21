@@ -6,5 +6,8 @@
   "scripts": {
     "start": "./scripts/start.sh",
     "test": "./scripts/test.sh"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.17"
   }
 }

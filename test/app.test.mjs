@@ -64,6 +64,17 @@ test('exports CSV from dashboard data', async () => {
   assert.match(csv, /Midnight City/);
 });
 
+test('imports the same history from a ZIP archive', async () => {
+  const fixture = readFileSync(join(root, 'fixtures/sample-history.zip'));
+  const form = new FormData();
+  form.append('files', new Blob([fixture], { type: 'application/zip' }), 'sample-history.zip');
+
+  const imported = await jsonFetch('/api/import', { method: 'POST', body: form });
+  assert.equal(imported.files[0].source_file, 'sample-history.json');
+  assert.equal(imported.records_seen, 4);
+  assert.equal(imported.duplicate_records, 4);
+});
+
 async function jsonFetch(path, options) {
   const response = await fetch(`http://127.0.0.1:${port}${path}`, options);
   const body = await response.json();

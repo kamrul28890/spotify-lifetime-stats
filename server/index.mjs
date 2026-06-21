@@ -1,16 +1,15 @@
 import { createServer } from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
 import { createHash, randomBytes, webcrypto } from 'node:crypto';
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import AdmZip from 'adm-zip';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = resolve(__dirname, '..');
 const publicDir = join(rootDir, 'public');
 const dataDir = join(rootDir, 'work', 'data');
-const uploadDir = join(rootDir, 'work', 'uploads');
 const scopes = [
   'user-top-read',
   'user-read-recently-played',
@@ -56,7 +55,6 @@ export async function startServer(options = {}) {
   redirectUri = `http://${host}:${port}/callback`;
 
   mkdirSync(dataDir, { recursive: true });
-  mkdirSync(uploadDir, { recursive: true });
   mkdirSync(dirname(dbPath), { recursive: true });
 
   db = new DatabaseSync(dbPath);
@@ -342,22 +340,12 @@ function extractUploadFiles(file) {
   const looksZip = file.buffer.subarray(0, 2).toString('utf8') === 'PK';
   if (extension !== '.zip' && !looksZip) return [{ name: file.filename, buffer: file.buffer }];
 
-  const tempName = `${Date.now()}-${safeName(file.filename || 'spotify-export.zip')}`;
-  const zipPath = join(uploadDir, tempName);
-  writeFileSync(zipPath, file.buffer);
-  try {
-    const listing = spawnSync('unzip', ['-Z1', zipPath], { encoding: 'utf8' });
-    if (listing.status !== 0) throw new Error(listing.stderr || 'Unable to inspect ZIP.');
-    const names = listing.stdout.split('\n').filter((name) => name.toLowerCase().endsWith('.json'));
-    if (!names.length) throw new Error('No JSON files found inside ZIP.');
-    return names.map((name) => {
-      const output = spawnSync('unzip', ['-p', zipPath, name], { encoding: null, maxBuffer: 200 * 1024 * 1024 });
-      if (output.status !== 0) throw new Error(`Unable to read ${name} from ZIP.`);
-      return { name, buffer: output.stdout };
-    });
-  } finally {
-    rmSync(zipPath, { force: true });
-  }
+  const zip = new AdmZip(file.buffer);
+  const entries = zip.getEntries().filter(
+    (entry) => !entry.isDirectory && entry.entryName.toLowerCase().endsWith('.json')
+  );
+  if (!entries.length) throw new Error('No JSON files found inside ZIP.');
+  return entries.map((entry) => ({ name: entry.entryName, buffer: entry.getData() }));
 }
 
 function importJsonFile(sourceFile, buffer) {
@@ -959,10 +947,6 @@ function boolInt(value) {
 
 function sha(value) {
   return createHash('sha256').update(value).digest('hex');
-}
-
-function safeName(value) {
-  return basename(value).replace(/[^a-zA-Z0-9._-]/g, '_');
 }
 
 function base64Url(buffer) {
